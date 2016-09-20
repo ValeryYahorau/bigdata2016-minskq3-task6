@@ -1,6 +1,7 @@
 package com.epam.bigdata2016.minskq3.task6;
 
 import eu.bitwalker.useragentutils.UserAgent;
+import org.apache.hadoop.hive.ql.exec.Description;
 import org.apache.hadoop.hive.ql.exec.UDFArgumentException;
 import org.apache.hadoop.hive.ql.metadata.HiveException;
 import org.apache.hadoop.hive.ql.udf.generic.GenericUDF;
@@ -12,6 +13,7 @@ import org.apache.hadoop.hive.serde2.objectinspector.primitive.StringObjectInspe
 import java.util.ArrayList;
 import java.util.List;
 
+@Description(name = "ua", value = "_FUNC_(expr) - Returns device, browser and OS from user agent.")
 @UDFType(deterministic = false)
 public class CustomUDFUserAgent extends GenericUDF {
 
