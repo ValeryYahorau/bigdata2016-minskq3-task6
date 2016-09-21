@@ -15,13 +15,14 @@ import org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectIn
 import java.util.ArrayList;
 import java.util.List;
 
-@Description(name = "ua", value = "_FUNC_(expr) - Returns device, browser and os from user agent.")
+@Description(name = "uaparams", value = "_FUNC_(expr) - Returns UA type, UA family, OS name and device from user agent.")
 @UDFType(deterministic = false)
-public class CustomUDTFUserAgent extends GenericUDTF {
+public class CustomUDTFUAParams extends GenericUDTF {
 
-    private static final String DEVICE = "device";
-    private static final String BROWSER = "browser";
-    private static final String OS = "os";
+    private static final String UA_TYPE = "UA_type";
+    private static final String UA_FAMILY = "UA_family";
+    private static final String OS_NAME = "OS_name";
+    private static final String DEVICE = "Device";
 
     private PrimitiveObjectInspector agentDtlOI = null;
     private Object[] fwdObj = null;
@@ -29,17 +30,19 @@ public class CustomUDTFUserAgent extends GenericUDTF {
     public StructObjectInspector initialize(ObjectInspector[] arg) {
 
         List<String> structFieldNames = new ArrayList<>();
+        structFieldNames.add(UA_TYPE);
+        structFieldNames.add(UA_FAMILY);
+        structFieldNames.add(OS_NAME);
         structFieldNames.add(DEVICE);
-        structFieldNames.add(BROWSER);
-        structFieldNames.add(OS);
 
         ArrayList<ObjectInspector> structFieldObjectInspectors = new ArrayList<>();
         structFieldObjectInspectors.add(PrimitiveObjectInspectorFactory.getPrimitiveJavaObjectInspector(PrimitiveCategory.STRING));
         structFieldObjectInspectors.add(PrimitiveObjectInspectorFactory.getPrimitiveJavaObjectInspector(PrimitiveCategory.STRING));
         structFieldObjectInspectors.add(PrimitiveObjectInspectorFactory.getPrimitiveJavaObjectInspector(PrimitiveCategory.STRING));
+        structFieldObjectInspectors.add(PrimitiveObjectInspectorFactory.getPrimitiveJavaObjectInspector(PrimitiveCategory.STRING));
 
         agentDtlOI = (PrimitiveObjectInspector) arg[0];
-        fwdObj = new Object[3];
+        fwdObj = new Object[4];
 
         return ObjectInspectorFactory.getStandardStructObjectInspector(structFieldNames, structFieldObjectInspectors);
     }
@@ -49,13 +52,10 @@ public class CustomUDTFUserAgent extends GenericUDTF {
         String uaStr = agentDtlOI.getPrimitiveJavaObject(arg[0]).toString();
         UserAgent ua = UserAgent.parseUserAgentString(uaStr);
 
-        String device = ua.getOperatingSystem() != null ? ua.getOperatingSystem().getDeviceType().getName() : null;
-        String browser = ua.getBrowser() != null ? ua.getBrowser().getName() : null;
-        String os = ua.getOperatingSystem() != null ? ua.getOperatingSystem().getName() : null;
-
-        fwdObj[0] = device;
-        fwdObj[1] = browser;
-        fwdObj[2] = os;
+        fwdObj[0] = ua.getBrowser() != null ? ua.getBrowser().getBrowserType().getName() : null;
+        fwdObj[1] = ua.getBrowser() != null ? ua.getBrowser().getGroup().getName() : null;
+        fwdObj[2] = ua.getBrowser() != null ? ua.getOperatingSystem().getName() : null;
+        fwdObj[3] = ua.getBrowser() != null ? ua.getOperatingSystem().getDeviceType().getName() : null;
 
         this.forward(fwdObj);
     }
