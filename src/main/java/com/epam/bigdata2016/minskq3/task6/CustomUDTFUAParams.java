@@ -62,6 +62,5 @@ public class CustomUDTFUAParams extends GenericUDTF {
 
     @Override
     public void close() throws HiveException {
-        forward(fwdObj);
     }
 }
